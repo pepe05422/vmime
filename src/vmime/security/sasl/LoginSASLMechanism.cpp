@@ -35,168 +35,108 @@
 #include "vmime/exception.hpp"
 
 namespace vmime {
-    namespace security {
-        namespace sasl {
-            LoginSASLMechanism::LoginSASLMechanism(
-                    const shared_ptr<SASLContext> &ctx,
-                    const string &name)
-                    : m_context(ctx),
-                      m_complete(false)
-            {}
+namespace security {
+namespace sasl {
+        LoginSASLMechanism::LoginSASLMechanism(
+                const shared_ptr<SASLContext> &ctx,
+                const string &name)
+                : m_context(ctx),
+                  m_complete(false)
+        {}
 
-            LoginSASLMechanism::~LoginSASLMechanism()
-            {}
+        LoginSASLMechanism::~LoginSASLMechanism()
+        {}
 
-            const string LoginSASLMechanism::getName() const {
-                return "LOGIN";
-            }
+        const string LoginSASLMechanism::getName() const {
+            return "LOGIN";
+        }
 
-            bool LoginSASLMechanism::step(
-                const shared_ptr<SASLSession> &sess,
-                const byte_t *challenge,
-                const size_t challengeLen,
-                byte_t **response,
-                size_t *responseLen
-            ) {
-                // Encode in base64 user address and pass,
-                // S: 334 VXNlcm5hbWU6 -> "Username:"
-                // C: _user address encoded in base64_
-                // S: 334 UGFzc3dvcmQ6 -> "Password:"
-                // C: _pass encoded in base64_
-                // S: 235 2.7.0 Authentication successful
+        bool LoginSASLMechanism::step(
+            const shared_ptr<SASLSession> &sess,
+            const byte_t *challenge,
+            const size_t challengeLen,
+            byte_t **response,
+            size_t *responseLen
+        ) {
+            // Encode in base64 user address and pass,
+            // S: 334 VXNlcm5hbWU6 -> "Username:"
+            // C: _user address encoded in base64_
+            // S: 334 UGFzc3dvcmQ6 -> "Password:"
+            // C: _pass encoded in base64_
+            // S: 235 2.7.0 Authentication successful
 
-                auto input = std::string(reinterpret_cast<const char *>(challenge));
+            auto input = std::string(reinterpret_cast<const char *>(challenge));
 
-                if (input == "Username:")
-                {
-                    const std::string user(sess->getAuthenticator()->getUsername());
-                    byte_t* userResp = new byte_t[user.length()];
-                    std::copy(user.c_str(), user.c_str() + user.length(), userResp);
-
-                    *response = userResp;
-                    *responseLen = user.length();
-                    m_complete = false;
-
-                    return false;
-                }
-                else if (input == "Password:")
-                {
-                    const std::string pass(sess->getAuthenticator()->getPassword());
-                    byte_t* passResp = new byte_t[pass.length()];
-                    std::copy(pass.c_str(), pass.c_str() + pass.length(), passResp);
-
-                    *response = passResp;
-                    *responseLen = pass.length();
-                    m_complete = true;
-
-                    return true;
-                }
-                else
-                {
-                    throw;
-                }
-
-
-                /*char *output = 0;
-                size_t outputLen = 0;
-
-                if (nullptr == sess->m_gsaslSession)
-                {
-                    throw exceptions::sasl_exception("Invalid SASL session");
-                }
-
-                const int result = gsasl_step64(
-                    sess->m_gsaslSession,
-                    reinterpret_cast<const char *>(challenge),
-                    &output);
-
-
-                if (result == GSASL_OK || result == GSASL_NEEDS_MORE)
-                {
-                    byte_t *res = new byte_t[outputLen];
-
-                    for (size_t i = 0; i < outputLen; ++i)
-                    {
-                        res[i] = output[i];
-                    }
-
-                    *response = res;
-                    *responseLen = outputLen;
-
-                    gsasl_free(output);
-                }
-                else
-                {
-                    *response = 0;
-                    *responseLen = 0;
-                }
-
-                if (result == GSASL_OK)
-                {
-                    // Authentication process completed
-                    m_complete = true;
-                    return true;
-                }
-                else if (result == GSASL_NEEDS_MORE)
-                {
-                    // Continue authentication process
-                    return false;
-                }
-                else if (result == GSASL_MALLOC_ERROR)
-                {
-                    throw std::bad_alloc();
-                }
-                else
-                {
-                    throw exceptions::sasl_exception(
-                        "Error when processing challenge " +
-                        SASLContext::getErrorMessage(
-                                "gsasl_step", result
-                        )
-                    );
-                }*/
-            }
-
-            bool LoginSASLMechanism::isComplete() const
+            if (input == "Username:")
             {
-                return m_complete;
-            }
+                const std::string user(sess->getAuthenticator()->getUsername());
+                byte_t* userResp = new byte_t[user.length()];
+                std::copy(user.c_str(), user.c_str() + user.length(), userResp);
 
-            bool LoginSASLMechanism::hasInitialResponse() const
-            {
+                *response = userResp;
+                *responseLen = user.length();
+                m_complete = false;
+
                 return false;
             }
-
-            void LoginSASLMechanism::encode(
-                    const shared_ptr<SASLSession> &sess,
-                    const byte_t *input,
-                    const size_t inputLen,
-                    byte_t **output,
-                    size_t *outputLen)
+            else if (input == "Password:")
             {
-                // No encoding performed, just copy input bytes
-                byte_t* res = new byte_t[inputLen];
-                std::copy(input, input + inputLen, res);
+                const std::string pass(sess->getAuthenticator()->getPassword());
+                byte_t* passResp = new byte_t[pass.length()];
+                std::copy(pass.c_str(), pass.c_str() + pass.length(), passResp);
 
-                *outputLen = inputLen;
-                *output = res;
+                *response = passResp;
+                *responseLen = pass.length();
+                m_complete = true;
+
+                return true;
             }
-
-            void LoginSASLMechanism::decode(
-                    const shared_ptr<SASLSession> &sess,
-                    const byte_t *input,
-                    const size_t inputLen,
-                    byte_t **output, size_t *outputLen)
+            else
             {
-                // No decoding performed, just copy input bytes
-                byte_t* res = new byte_t[inputLen];
-                std::copy(input, input + inputLen, res);
-
-                *outputLen = inputLen;
-                *output = res;
+                throw;
             }
-        } // sasl
-    } // security
+        }
+
+        bool LoginSASLMechanism::isComplete() const
+        {
+            return m_complete;
+        }
+
+        bool LoginSASLMechanism::hasInitialResponse() const
+        {
+            return false;
+        }
+
+        void LoginSASLMechanism::encode(
+                const shared_ptr<SASLSession> &sess,
+                const byte_t *input,
+                const size_t inputLen,
+                byte_t **output,
+                size_t *outputLen)
+        {
+            // No encoding performed, just copy input bytes
+            byte_t* res = new byte_t[inputLen];
+            std::copy(input, input + inputLen, res);
+
+            *outputLen = inputLen;
+            *output = res;
+        }
+
+        void LoginSASLMechanism::decode(
+                const shared_ptr<SASLSession> &sess,
+                const byte_t *input,
+                const size_t inputLen,
+                byte_t **output, size_t *outputLen)
+        {
+            // No decoding performed, just copy input bytes
+            byte_t* res = new byte_t[inputLen];
+            std::copy(input, input + inputLen, res);
+
+            *outputLen = inputLen;
+            *output = res;
+        }
+} // sasl
+} // security
 } // vmime
 
 #endif // VMIME_HAVE_MESSAGING_FEATURES && VMIME_HAVE_SASL_SUPPORT

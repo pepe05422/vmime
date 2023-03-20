@@ -31,36 +31,35 @@
 #include "vmime/security/sasl/SASLContext.hpp"
 
 namespace vmime {
-    namespace security {
-        namespace sasl {
-            LoginSASLAuthenticator::LoginSASLAuthenticator()
-            {
-            }
+namespace security {
+namespace sasl {
+        LoginSASLAuthenticator::LoginSASLAuthenticator()
+        {
+        }
 
-            LoginSASLAuthenticator::~LoginSASLAuthenticator()
-            {
-            }
+        LoginSASLAuthenticator::~LoginSASLAuthenticator()
+        {
+        }
 
-            const std::vector <shared_ptr <SASLMechanism> >
-            LoginSASLAuthenticator::getAcceptableMechanisms(
-                    const std::vector <shared_ptr <SASLMechanism> >& available,
-                    const shared_ptr <SASLMechanism>& suggested
-            ) const {
-                std::vector <shared_ptr <SASLMechanism> > mechs;
+        const std::vector <shared_ptr <SASLMechanism> >
+        LoginSASLAuthenticator::getAcceptableMechanisms(
+                const std::vector <shared_ptr <SASLMechanism> >& available,
+                const shared_ptr <SASLMechanism>& suggested
+        ) const {
+            std::vector <shared_ptr <SASLMechanism> > mechs;
 
-                for (size_t i = available.size() ; i != 0 ; --i) {
+            for (size_t i = available.size() ; i != 0 ; --i) {
 
-                    shared_ptr <SASLMechanism> mech = available[i - 1];
+                shared_ptr <SASLMechanism> mech = available[i - 1];
 
-                    if ("LOGIN" == mech->getName()) {
-                        // Only allow LOGIN
-                        mechs.push_back(mech);
-                    }
+                if ("LOGIN" == mech->getName()) {
+                    // Only allow LOGIN
+                    mechs.push_back(mech);
                 }
-
-                return mechs;
             }
 
-        } // sasl
-    } // security
+            return mechs;
+        }
+} // sasl
+} // security
 } // vmime

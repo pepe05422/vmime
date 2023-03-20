@@ -30,23 +30,26 @@
 #include "vmime/security/sasl/defaultSASLAuthenticator.hpp"
 
 namespace vmime {
-    namespace security {
-        namespace sasl {
+namespace security {
+namespace sasl {
 
-            /** An authenticator that is capable of providing information
-             * for login authentication mechanism (username and password in base64).
-             */
-            class VMIME_EXPORT LoginSASLAuthenticator : public defaultSASLAuthenticator {
-                LoginSASLAuthenticator();
-                ~LoginSASLAuthenticator();
+        /** An authenticator that is capable of providing information
+         * for login authentication mechanism (username and password in base64).
+         */
+        class VMIME_EXPORT LoginSASLAuthenticator : public defaultSASLAuthenticator {
 
-                const std::vector <shared_ptr <SASLMechanism> > getAcceptableMechanisms(
-                        const std::vector <shared_ptr <SASLMechanism> >& available,
-                        const shared_ptr <SASLMechanism>& suggested
-                ) const;
-            };
-        } // sasl
-    } // security
+        public:
+
+            LoginSASLAuthenticator();
+            ~LoginSASLAuthenticator();
+
+            const std::vector <shared_ptr <SASLMechanism> > getAcceptableMechanisms(
+                    const std::vector <shared_ptr <SASLMechanism> >& available,
+                    const shared_ptr <SASLMechanism>& suggested
+            ) const;
+        };
+} // sasl
+} // security
 } // vmime
 
 

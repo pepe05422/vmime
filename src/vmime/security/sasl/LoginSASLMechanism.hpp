@@ -39,6 +39,7 @@ class SASLContext;
   */
 class VMIME_EXPORT LoginSASLMechanism : public SASLMechanism {
 
+public:
 
 	LoginSASLMechanism(const shared_ptr <SASLContext>& ctx, const string& name);
 	~LoginSASLMechanism();
